@@ -2,6 +2,7 @@ from flask import Flask, render_template, request,jsonify
 from flask_cors import CORS,cross_origin
 import requests
 from bs4 import BeautifulSoup as bs
+from gevent.pywsgi import WSGIServer
 from urllib.request import urlopen as uReq
 import logging
 import pymongo
@@ -74,8 +75,18 @@ def index():
                 reviews.append(mydict)
             logging.info("log my final result {}".format(reviews))
 
+            from pymongo.mongo_client import MongoClient
+            uri = "mongodb+srv://abhaymagar90:abhaymagar90@cluster0.japbhna.mongodb.net/?retryWrites=true&w=majority"
+            # Create a new client and connect to the server
+            client = MongoClient(uri)
+            # Send a ping to confirm a successful connection
+            try:
+                client.admin.command('ping')
+                print("Pinged your deployment. You successfully connected to MongoDB!")
+            except Exception as e:
+                print(e)            
+
             
-            client = pymongo.MongoClient("mongodb+srv://pwskills:pwskills@cluster0.ln0bt5m.mongodb.net/?retryWrites=true&w=majority")
             db =client['scrapper_eng_pwskills']
             coll_pw_eng = db['scraper_pwskills_eng']
             coll_pw_eng.insert_many(reviews)
@@ -91,4 +102,4 @@ def index():
 
 
 if __name__=="__main__":
-    app.run(host="0.0.0.0")
+    app.run(debug=True)
